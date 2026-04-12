@@ -12,8 +12,8 @@
 // 4. Borra (o deja) el import de MOCK_HOME_DATA — ya no se usa.
 // ─────────────────────────────────────────────────────────────
 
-import type { HomeData } from "@/types/home";
 import { MOCK_HOME_DATA } from "@/mock/homeData";
+import type { HomeData } from "@/types/home";
 
 // ── configuración ─────────────────────────────────────
 const USE_MOCK = true; // ← cambia a false cuando tengas API
@@ -58,7 +58,7 @@ export async function fetchHomeData(userId: string): Promise<HomeData> {
 /** Devuelve datos mock tras un delay que simula la red. */
 function simulateFetch<T>(data: T): Promise<T> {
   return new Promise((resolve) =>
-    setTimeout(() => resolve(structuredClone(data)), SIMULATED_DELAY_MS)
+    setTimeout(() => resolve(structuredClone(data)), SIMULATED_DELAY_MS),
   );
 }
 
@@ -78,7 +78,7 @@ async function getAuthToken(): Promise<string> {
 class ApiError extends Error {
   constructor(
     public readonly status: number,
-    message: string
+    message: string,
   ) {
     super(`API error ${status}: ${message}`);
     this.name = "ApiError";
