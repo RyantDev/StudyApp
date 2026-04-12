@@ -10,6 +10,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -137,6 +138,275 @@ function TaskCard({
   );
 }
 
+// ── Constantes de formulario ───────────────────────────
+const PRIORITIES: { key: Priority; label: string; color: string; bg: string }[] = [
+  { key: "alta",  label: "Alta",  color: "#DC2626", bg: "#FEE2E2" },
+  { key: "media", label: "Media", color: "#D97706", bg: "#FEF3C7" },
+  { key: "baja",  label: "Baja",  color: "#059669", bg: "#D1FAE5" },
+];
+const STATUSES: { key: TaskStatus; label: string }[] = [
+  { key: "pendiente",  label: "Pendiente"  },
+  { key: "en_proceso", label: "En proceso" },
+  { key: "completada", label: "Completada" },
+];
+
+// ── Modal Nueva Tarea ──────────────────────────────────
+function NewTaskModal({
+  visible,
+  subjects,
+  onClose,
+  onSubmit,
+}: {
+  visible: boolean;
+  subjects: { id: string; name: string; color: string }[];
+  onClose: () => void;
+  onSubmit: (title: string, subjectId: string, priority: Priority, status: TaskStatus, dueDate: string, notes: string) => void;
+}) {
+  const today = new Date().toISOString().split("T")[0];
+  const [title,      setTitle]      = useState("");
+  const [subjectId,  setSubjectId]  = useState(subjects[0]?.id ?? "");
+  const [priority,   setPriority]   = useState<Priority>("media");
+  const [status,     setStatus]     = useState<TaskStatus>("pendiente");
+  const [dueDate,    setDueDate]    = useState(today);
+  const [notes,      setNotes]      = useState("");
+  const [showSubMenu, setShowSubMenu] = useState(false);
+
+  // Reset al abrir
+  useEffect(() => {
+    if (visible) {
+      setTitle(""); setSubjectId(subjects[0]?.id ?? "");
+      setPriority("media"); setStatus("pendiente");
+      setDueDate(today); setNotes(""); setShowSubMenu(false);
+    }
+  }, [visible]);
+
+  const selectedSubject = subjects.find((s) => s.id === subjectId);
+
+  function formatDisplayDate(iso: string) {
+    const [y, m, d] = iso.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
+  function handleDateChange(text: string) {
+    // Acepta texto tipo DD/MM/YYYY y convierte a ISO
+    const clean = text.replace(/\D/g, "").slice(0, 8);
+    if (clean.length === 8) {
+      const d = clean.slice(0, 2), m = clean.slice(2, 4), y = clean.slice(4, 8);
+      setDueDate(`${y}-${m}-${d}`);
+    }
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={ns.overlay} activeOpacity={1} onPress={onClose} />
+      <View style={ns.sheet}>
+        <View style={ns.sheetHandle} />
+
+        {/* Header */}
+        <View style={ns.header}>
+          <Text style={ns.title}>Nueva tarea</Text>
+          <TouchableOpacity onPress={onClose} style={ns.closeBtn}>
+            <MaterialIcons name="close" size={18} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Nombre */}
+          <Text style={ns.label}>NOMBRE</Text>
+          <TextInput
+            style={ns.input}
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Ej: Parcial de Cálculo"
+            placeholderTextColor="#9CA3AF"
+          />
+
+          {/* Materia */}
+          <Text style={[ns.label, { marginTop: 18 }]}>MATERIA</Text>
+          <TouchableOpacity
+            style={ns.select}
+            onPress={() => setShowSubMenu((v) => !v)}
+            activeOpacity={0.8}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              {selectedSubject && (
+                <View style={[ns.selectDot, { backgroundColor: selectedSubject.color }]} />
+              )}
+              <Text style={ns.selectText}>{selectedSubject?.name ?? "Seleccionar"}</Text>
+            </View>
+            <MaterialIcons name="keyboard-arrow-down" size={22} color="#6B7280" />
+          </TouchableOpacity>
+          {showSubMenu && (
+            <View style={ns.dropdown}>
+              {subjects.map((sub) => (
+                <TouchableOpacity
+                  key={sub.id}
+                  style={[ns.dropdownItem, subjectId === sub.id && ns.dropdownItemOn]}
+                  onPress={() => { setSubjectId(sub.id); setShowSubMenu(false); }}
+                >
+                  <View style={[ns.selectDot, { backgroundColor: sub.color }]} />
+                  <Text style={[ns.dropdownText, subjectId === sub.id && { color: "#7C3AED", fontWeight: "700" }]}>
+                    {sub.name}
+                  </Text>
+                  {subjectId === sub.id && <MaterialIcons name="check" size={16} color="#7C3AED" />}
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {/* Prioridad */}
+          <Text style={[ns.label, { marginTop: 18 }]}>PRIORIDAD</Text>
+          <View style={ns.segRow}>
+            {PRIORITIES.map((p) => (
+              <TouchableOpacity
+                key={p.key}
+                style={[
+                  ns.segBtn,
+                  priority === p.key && { backgroundColor: p.bg, borderColor: p.color },
+                ]}
+                onPress={() => setPriority(p.key)}
+              >
+                <Text style={[ns.segText, priority === p.key && { color: p.color, fontWeight: "700" }]}>
+                  {p.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Estado */}
+          <Text style={[ns.label, { marginTop: 18 }]}>ESTADO</Text>
+          <View style={ns.segRow}>
+            {STATUSES.map((st) => (
+              <TouchableOpacity
+                key={st.key}
+                style={[
+                  ns.segBtn,
+                  status === st.key && { backgroundColor: "#EDE9FE", borderColor: "#7C3AED" },
+                ]}
+                onPress={() => setStatus(st.key)}
+              >
+                <Text style={[ns.segText, status === st.key && { color: "#7C3AED", fontWeight: "700" }]}>
+                  {st.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Fecha */}
+          <Text style={[ns.label, { marginTop: 18 }]}>FECHA DE ENTREGA</Text>
+          <View style={ns.dateRow}>
+            <TextInput
+              style={[ns.input, { flex: 1 }]}
+              value={formatDisplayDate(dueDate)}
+              onChangeText={handleDateChange}
+              keyboardType="numeric"
+              placeholder="DD/MM/AAAA"
+              placeholderTextColor="#9CA3AF"
+            />
+            <View style={ns.dateIcon}>
+              <MaterialIcons name="calendar-today" size={20} color="#7C3AED" />
+            </View>
+          </View>
+
+          {/* Notas */}
+          <Text style={[ns.label, { marginTop: 18 }]}>NOTAS</Text>
+          <TextInput
+            style={[ns.input, ns.textarea]}
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Notas adicionales..."
+            placeholderTextColor="#9CA3AF"
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+          />
+
+          {/* Botón crear */}
+          <TouchableOpacity
+            style={[ns.createBtn, !title.trim() && ns.createBtnDisabled]}
+            onPress={() => {
+              if (!title.trim()) return;
+              onSubmit(title.trim(), subjectId, priority, status, dueDate, notes.trim());
+            }}
+            activeOpacity={0.85}
+          >
+            <Text style={ns.createBtnText}>Crear tarea</Text>
+          </TouchableOpacity>
+          <View style={{ height: 32 }} />
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+}
+
+// ── Estilos del modal nueva tarea ──────────────────────
+const ns = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)" },
+  sheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    paddingHorizontal: 24, paddingTop: 12,
+    maxHeight: "92%",
+  },
+  sheetHandle: {
+    width: 40, height: 4, backgroundColor: "#E5E7EB",
+    borderRadius: 2, alignSelf: "center", marginBottom: 16,
+  },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
+  title:  { fontSize: 22, fontWeight: "700", color: "#1e1b4b" },
+  closeBtn: {
+    width: 34, height: 34, borderRadius: 17,
+    backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "center",
+  },
+  label: { fontSize: 11, fontWeight: "700", color: "#9CA3AF", letterSpacing: 0.8, marginBottom: 8 },
+  input: {
+    borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 14,
+    paddingHorizontal: 16, paddingVertical: 14,
+    fontSize: 15, color: "#1e1b4b", backgroundColor: "#FAFAFA",
+  },
+  textarea: { minHeight: 80, paddingTop: 12 },
+
+  select: {
+    borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 14,
+    paddingHorizontal: 16, paddingVertical: 14, backgroundColor: "#FAFAFA",
+    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
+  },
+  selectDot:  { width: 10, height: 10, borderRadius: 5 },
+  selectText: { fontSize: 15, color: "#1e1b4b" },
+  dropdown: {
+    borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 14,
+    backgroundColor: "#fff", marginTop: 4, overflow: "hidden",
+  },
+  dropdownItem: {
+    flexDirection: "row", alignItems: "center", gap: 10,
+    paddingHorizontal: 16, paddingVertical: 13,
+    borderBottomWidth: 1, borderBottomColor: "#F3F4F6",
+  },
+  dropdownItemOn: { backgroundColor: "#F5F3FF" },
+  dropdownText:   { flex: 1, fontSize: 14, color: "#374151" },
+
+  segRow: { flexDirection: "row", gap: 8 },
+  segBtn: {
+    flex: 1, borderRadius: 14, borderWidth: 1.5, borderColor: "#E5E7EB",
+    paddingVertical: 12, alignItems: "center", backgroundColor: "#fff",
+  },
+  segText: { fontSize: 13, fontWeight: "500", color: "#6B7280" },
+
+  dateRow: { flexDirection: "row", gap: 10, alignItems: "center" },
+  dateIcon: {
+    width: 50, height: 50, borderRadius: 14, borderWidth: 1,
+    borderColor: "#E5E7EB", backgroundColor: "#FAFAFA",
+    alignItems: "center", justifyContent: "center",
+  },
+
+  createBtn: {
+    backgroundColor: "#7C3AED", borderRadius: 16,
+    padding: 17, alignItems: "center", marginTop: 20,
+  },
+  createBtnDisabled: { opacity: 0.45 },
+  createBtnText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+});
+
 export default function TareasScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,6 +426,21 @@ export default function TareasScreen() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function addTask(title: string, subjectId: string, priority: Priority, status: TaskStatus, dueDate: string, notes: string) {
+    const subject = subjects.find((s) => s.id === subjectId) ?? subjects[0];
+    if (!subject) return;
+    const newTask: Task = {
+      id: `tsk_${Date.now()}`,
+      title,
+      subject,
+      priority,
+      status,
+      dueDate,
+      notes,
+    };
+    setTasks((prev) => [newTask, ...prev]);
   }
 
   function toggleStatus(id: string) {
@@ -348,37 +633,15 @@ export default function TareasScreen() {
       </Modal>
 
       {/* modal nueva tarea */}
-      <Modal
+      <NewTaskModal
         visible={showNew}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowNew(false)}
-      >
-        <TouchableOpacity
-          style={s.overlay}
-          activeOpacity={1}
-          onPress={() => setShowNew(false)}
-        />
-        <View style={s.sheet}>
-          <Text style={s.sheetTitle}>Nueva tarea</Text>
-          <Text
-            style={{
-              color: "#9CA3AF",
-              fontSize: 14,
-              marginTop: 8,
-              marginBottom: 24,
-            }}
-          >
-            Próximamente: formulario completo para crear tareas.
-          </Text>
-          <TouchableOpacity
-            style={s.sheetBtn}
-            onPress={() => setShowNew(false)}
-          >
-            <Text style={s.sheetBtnText}>Cerrar</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+        subjects={subjects}
+        onClose={() => setShowNew(false)}
+        onSubmit={(title, subjectId, priority, status, dueDate, notes) => {
+          addTask(title, subjectId, priority, status, dueDate, notes);
+          setShowNew(false);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -404,7 +667,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
 
-  filterRow: { paddingHorizontal: 20, paddingVertical: 10, gap: 8 },
+  filterRow: { paddingHorizontal: 20, paddingVertical: 10, gap: 8, paddingEnd: 20 },
   filterPill: {
     paddingHorizontal: 16,
     paddingVertical: 7,
@@ -417,7 +680,7 @@ const s = StyleSheet.create({
   filterText: { fontSize: 13, fontWeight: "500", color: "#6B7280" },
   filterTextOn: { color: "#fff", fontWeight: "700" },
 
-  subjectRow: { paddingHorizontal: 20, paddingBottom: 10, gap: 8 },
+  subjectRow: { paddingHorizontal: 20, paddingBottom: 10, gap: 8, paddingEnd: 20 },
   subChip: {
     flexDirection: "row",
     alignItems: "center",

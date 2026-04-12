@@ -288,7 +288,7 @@ export default function HomeScreen() {
 // Estilos
 // ══════════════════════════════════════════════════════
 const styles = StyleSheet.create({
-  headerContent:       { position: "absolute", bottom: 0, left: 0, right: 0, padding: 24, paddingBottom: 28 },
+  headerContent:       { position: "absolute", bottom: 0, left: 0, right: 0, padding: 20, paddingBottom: 24 },
   headerDate:          { fontSize: 13, color: "rgba(255,255,255,0.7)", fontWeight: "500", marginBottom: 4 },
   headerTitle:         { fontSize: 26, fontWeight: "700", color: "#fff", marginBottom: 4 },
   headerSub:           { fontSize: 14, color: "rgba(255,255,255,0.75)", marginBottom: 18 },
@@ -305,12 +305,12 @@ const styles = StyleSheet.create({
   retryBtn:      { marginTop: 8, backgroundColor: "#EDE9FE", paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   retryText:     { color: "#7C3AED", fontWeight: "700", fontSize: 14 },
 
-  urgentBanner:  { backgroundColor: "#FEE2E2", borderRadius: 16, padding: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 4, borderWidth: 1, borderColor: "#FECACA" },
+  urgentBanner:  { backgroundColor: "#FEE2E2", borderRadius: 16, padding: 16, marginTop: 4, marginBottom: 4, borderWidth: 1, borderColor: "#FECACA" },
   urgentEyebrow: { fontSize: 12, color: "#DC2626", fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 },
   urgentTitle:   { fontSize: 15, fontWeight: "700", color: "#991B1B", marginBottom: 2 },
   urgentSub:     { fontSize: 12, color: "#DC2626" },
 
-  section:       { gap: 12, marginBottom: 8 },
+  section:       { gap: 12, marginBottom: 4 },
   sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   seeAll:        { fontSize: 13, color: "#7C3AED", fontWeight: "600" },
 
