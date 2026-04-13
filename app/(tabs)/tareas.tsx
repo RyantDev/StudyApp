@@ -139,13 +139,18 @@ function TaskCard({
 }
 
 // ── Constantes de formulario ───────────────────────────
-const PRIORITIES: { key: Priority; label: string; color: string; bg: string }[] = [
-  { key: "alta",  label: "Alta",  color: "#DC2626", bg: "#FEE2E2" },
+const PRIORITIES: {
+  key: Priority;
+  label: string;
+  color: string;
+  bg: string;
+}[] = [
+  { key: "alta", label: "Alta", color: "#DC2626", bg: "#FEE2E2" },
   { key: "media", label: "Media", color: "#D97706", bg: "#FEF3C7" },
-  { key: "baja",  label: "Baja",  color: "#059669", bg: "#D1FAE5" },
+  { key: "baja", label: "Baja", color: "#059669", bg: "#D1FAE5" },
 ];
 const STATUSES: { key: TaskStatus; label: string }[] = [
-  { key: "pendiente",  label: "Pendiente"  },
+  { key: "pendiente", label: "Pendiente" },
   { key: "en_proceso", label: "En proceso" },
   { key: "completada", label: "Completada" },
 ];
@@ -160,23 +165,34 @@ function NewTaskModal({
   visible: boolean;
   subjects: { id: string; name: string; color: string }[];
   onClose: () => void;
-  onSubmit: (title: string, subjectId: string, priority: Priority, status: TaskStatus, dueDate: string, notes: string) => void;
+  onSubmit: (
+    title: string,
+    subjectId: string,
+    priority: Priority,
+    status: TaskStatus,
+    dueDate: string,
+    notes: string,
+  ) => void;
 }) {
   const today = new Date().toISOString().split("T")[0];
-  const [title,      setTitle]      = useState("");
-  const [subjectId,  setSubjectId]  = useState(subjects[0]?.id ?? "");
-  const [priority,   setPriority]   = useState<Priority>("media");
-  const [status,     setStatus]     = useState<TaskStatus>("pendiente");
-  const [dueDate,    setDueDate]    = useState(today);
-  const [notes,      setNotes]      = useState("");
+  const [title, setTitle] = useState("");
+  const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? "");
+  const [priority, setPriority] = useState<Priority>("media");
+  const [status, setStatus] = useState<TaskStatus>("pendiente");
+  const [dueDate, setDueDate] = useState(today);
+  const [notes, setNotes] = useState("");
   const [showSubMenu, setShowSubMenu] = useState(false);
 
   // Reset al abrir
   useEffect(() => {
     if (visible) {
-      setTitle(""); setSubjectId(subjects[0]?.id ?? "");
-      setPriority("media"); setStatus("pendiente");
-      setDueDate(today); setNotes(""); setShowSubMenu(false);
+      setTitle("");
+      setSubjectId(subjects[0]?.id ?? "");
+      setPriority("media");
+      setStatus("pendiente");
+      setDueDate(today);
+      setNotes("");
+      setShowSubMenu(false);
     }
   }, [visible]);
 
@@ -191,14 +207,25 @@ function NewTaskModal({
     // Acepta texto tipo DD/MM/YYYY y convierte a ISO
     const clean = text.replace(/\D/g, "").slice(0, 8);
     if (clean.length === 8) {
-      const d = clean.slice(0, 2), m = clean.slice(2, 4), y = clean.slice(4, 8);
+      const d = clean.slice(0, 2),
+        m = clean.slice(2, 4),
+        y = clean.slice(4, 8);
       setDueDate(`${y}-${m}-${d}`);
     }
   }
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableOpacity style={ns.overlay} activeOpacity={1} onPress={onClose} />
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity
+        style={ns.overlay}
+        activeOpacity={1}
+        onPress={onClose}
+      />
       <View style={ns.sheet}>
         <View style={ns.sheetHandle} />
 
@@ -228,27 +255,58 @@ function NewTaskModal({
             onPress={() => setShowSubMenu((v) => !v)}
             activeOpacity={0.8}
           >
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+            >
               {selectedSubject && (
-                <View style={[ns.selectDot, { backgroundColor: selectedSubject.color }]} />
+                <View
+                  style={[
+                    ns.selectDot,
+                    { backgroundColor: selectedSubject.color },
+                  ]}
+                />
               )}
-              <Text style={ns.selectText}>{selectedSubject?.name ?? "Seleccionar"}</Text>
+              <Text style={ns.selectText}>
+                {selectedSubject?.name ?? "Seleccionar"}
+              </Text>
             </View>
-            <MaterialIcons name="keyboard-arrow-down" size={22} color="#6B7280" />
+            <MaterialIcons
+              name="keyboard-arrow-down"
+              size={22}
+              color="#6B7280"
+            />
           </TouchableOpacity>
           {showSubMenu && (
             <View style={ns.dropdown}>
               {subjects.map((sub) => (
                 <TouchableOpacity
                   key={sub.id}
-                  style={[ns.dropdownItem, subjectId === sub.id && ns.dropdownItemOn]}
-                  onPress={() => { setSubjectId(sub.id); setShowSubMenu(false); }}
+                  style={[
+                    ns.dropdownItem,
+                    subjectId === sub.id && ns.dropdownItemOn,
+                  ]}
+                  onPress={() => {
+                    setSubjectId(sub.id);
+                    setShowSubMenu(false);
+                  }}
                 >
-                  <View style={[ns.selectDot, { backgroundColor: sub.color }]} />
-                  <Text style={[ns.dropdownText, subjectId === sub.id && { color: "#7C3AED", fontWeight: "700" }]}>
+                  <View
+                    style={[ns.selectDot, { backgroundColor: sub.color }]}
+                  />
+                  <Text
+                    style={[
+                      ns.dropdownText,
+                      subjectId === sub.id && {
+                        color: "#7C3AED",
+                        fontWeight: "700",
+                      },
+                    ]}
+                  >
                     {sub.name}
                   </Text>
-                  {subjectId === sub.id && <MaterialIcons name="check" size={16} color="#7C3AED" />}
+                  {subjectId === sub.id && (
+                    <MaterialIcons name="check" size={16} color="#7C3AED" />
+                  )}
                 </TouchableOpacity>
               ))}
             </View>
@@ -262,11 +320,19 @@ function NewTaskModal({
                 key={p.key}
                 style={[
                   ns.segBtn,
-                  priority === p.key && { backgroundColor: p.bg, borderColor: p.color },
+                  priority === p.key && {
+                    backgroundColor: p.bg,
+                    borderColor: p.color,
+                  },
                 ]}
                 onPress={() => setPriority(p.key)}
               >
-                <Text style={[ns.segText, priority === p.key && { color: p.color, fontWeight: "700" }]}>
+                <Text
+                  style={[
+                    ns.segText,
+                    priority === p.key && { color: p.color, fontWeight: "700" },
+                  ]}
+                >
                   {p.label}
                 </Text>
               </TouchableOpacity>
@@ -281,11 +347,22 @@ function NewTaskModal({
                 key={st.key}
                 style={[
                   ns.segBtn,
-                  status === st.key && { backgroundColor: "#EDE9FE", borderColor: "#7C3AED" },
+                  status === st.key && {
+                    backgroundColor: "#EDE9FE",
+                    borderColor: "#7C3AED",
+                  },
                 ]}
                 onPress={() => setStatus(st.key)}
               >
-                <Text style={[ns.segText, status === st.key && { color: "#7C3AED", fontWeight: "700" }]}>
+                <Text
+                  style={[
+                    ns.segText,
+                    status === st.key && {
+                      color: "#7C3AED",
+                      fontWeight: "700",
+                    },
+                  ]}
+                >
                   {st.label}
                 </Text>
               </TouchableOpacity>
@@ -326,7 +403,14 @@ function NewTaskModal({
             style={[ns.createBtn, !title.trim() && ns.createBtnDisabled]}
             onPress={() => {
               if (!title.trim()) return;
-              onSubmit(title.trim(), subjectId, priority, status, dueDate, notes.trim());
+              onSubmit(
+                title.trim(),
+                subjectId,
+                priority,
+                status,
+                dueDate,
+                notes.trim(),
+              );
             }}
             activeOpacity={0.85}
           >
@@ -344,64 +428,117 @@ const ns = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)" },
   sheet: {
     backgroundColor: "#fff",
-    borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    paddingHorizontal: 24, paddingTop: 12,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 24,
+    paddingTop: 12,
     maxHeight: "92%",
   },
   sheetHandle: {
-    width: 40, height: 4, backgroundColor: "#E5E7EB",
-    borderRadius: 2, alignSelf: "center", marginBottom: 16,
+    width: 40,
+    height: 4,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 2,
+    alignSelf: "center",
+    marginBottom: 16,
   },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
-  title:  { fontSize: 22, fontWeight: "700", color: "#1e1b4b" },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 22,
+  },
+  title: { fontSize: 22, fontWeight: "700", color: "#1e1b4b" },
   closeBtn: {
-    width: 34, height: 34, borderRadius: 17,
-    backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "center",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: "#F3F4F6",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  label: { fontSize: 11, fontWeight: "700", color: "#9CA3AF", letterSpacing: 0.8, marginBottom: 8 },
+  label: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#9CA3AF",
+    letterSpacing: 0.8,
+    marginBottom: 8,
+  },
   input: {
-    borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 14,
-    fontSize: 15, color: "#1e1b4b", backgroundColor: "#FAFAFA",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: "#1e1b4b",
+    backgroundColor: "#FAFAFA",
   },
   textarea: { minHeight: 80, paddingTop: 12 },
 
   select: {
-    borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 14, backgroundColor: "#FAFAFA",
-    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: "#FAFAFA",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  selectDot:  { width: 10, height: 10, borderRadius: 5 },
+  selectDot: { width: 10, height: 10, borderRadius: 5 },
   selectText: { fontSize: 15, color: "#1e1b4b" },
   dropdown: {
-    borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 14,
-    backgroundColor: "#fff", marginTop: 4, overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 14,
+    backgroundColor: "#fff",
+    marginTop: 4,
+    overflow: "hidden",
   },
   dropdownItem: {
-    flexDirection: "row", alignItems: "center", gap: 10,
-    paddingHorizontal: 16, paddingVertical: 13,
-    borderBottomWidth: 1, borderBottomColor: "#F3F4F6",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
   },
   dropdownItemOn: { backgroundColor: "#F5F3FF" },
-  dropdownText:   { flex: 1, fontSize: 14, color: "#374151" },
+  dropdownText: { flex: 1, fontSize: 14, color: "#374151" },
 
   segRow: { flexDirection: "row", gap: 8 },
   segBtn: {
-    flex: 1, borderRadius: 14, borderWidth: 1.5, borderColor: "#E5E7EB",
-    paddingVertical: 12, alignItems: "center", backgroundColor: "#fff",
+    flex: 1,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   segText: { fontSize: 13, fontWeight: "500", color: "#6B7280" },
 
   dateRow: { flexDirection: "row", gap: 10, alignItems: "center" },
   dateIcon: {
-    width: 50, height: 50, borderRadius: 14, borderWidth: 1,
-    borderColor: "#E5E7EB", backgroundColor: "#FAFAFA",
-    alignItems: "center", justifyContent: "center",
+    width: 50,
+    height: 50,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    backgroundColor: "#FAFAFA",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   createBtn: {
-    backgroundColor: "#7C3AED", borderRadius: 16,
-    padding: 17, alignItems: "center", marginTop: 20,
+    backgroundColor: "#7C3AED",
+    borderRadius: 16,
+    padding: 17,
+    alignItems: "center",
+    marginTop: 20,
   },
   createBtnDisabled: { opacity: 0.45 },
   createBtnText: { color: "#fff", fontWeight: "700", fontSize: 16 },
@@ -428,7 +565,14 @@ export default function TareasScreen() {
     }
   }
 
-  function addTask(title: string, subjectId: string, priority: Priority, status: TaskStatus, dueDate: string, notes: string) {
+  function addTask(
+    title: string,
+    subjectId: string,
+    priority: Priority,
+    status: TaskStatus,
+    dueDate: string,
+    notes: string,
+  ) {
     const subject = subjects.find((s) => s.id === subjectId) ?? subjects[0];
     if (!subject) return;
     const newTask: Task = {
@@ -647,7 +791,10 @@ export default function TareasScreen() {
 }
 
 const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
+  safe: {
+    backgroundColor: "#fff",
+    gap: 8,
+  },
 
   header: {
     flexDirection: "row",
@@ -667,7 +814,11 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
 
-  filterRow: { paddingHorizontal: 20, paddingVertical: 10, gap: 8, paddingEnd: 20 },
+  filterRow: {
+    paddingHorizontal: 20,
+    gap: 8,
+    height: 34,
+  },
   filterPill: {
     paddingHorizontal: 16,
     paddingVertical: 7,
@@ -677,10 +828,18 @@ const s = StyleSheet.create({
     backgroundColor: "#fff",
   },
   filterPillOn: { backgroundColor: "#7C3AED", borderColor: "#7C3AED" },
-  filterText: { fontSize: 13, fontWeight: "500", color: "#6B7280" },
+  filterText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#6B7280",
+  },
   filterTextOn: { color: "#fff", fontWeight: "700" },
 
-  subjectRow: { paddingHorizontal: 20, paddingBottom: 10, gap: 8, paddingEnd: 20 },
+  subjectRow: {
+    gap: 8,
+    height: 30,
+    paddingHorizontal: 20,
+  },
   subChip: {
     flexDirection: "row",
     alignItems: "center",
@@ -697,7 +856,11 @@ const s = StyleSheet.create({
   subChipText: { fontSize: 12, color: "#6B7280", fontWeight: "500" },
   subChipTextOn: { color: "#7C3AED", fontWeight: "700" },
 
-  list: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 120 },
+  list: {
+    paddingHorizontal: 16,
+    gap: 8,
+    height: "80%",
+  },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10 },
   emptyText: { fontSize: 15, color: "#9CA3AF", fontWeight: "500" },
 
